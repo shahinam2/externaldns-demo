@@ -1,0 +1,47 @@
+# Helm values for the ExternalDNS chart (Cloudflare provider, Ingress source).
+#
+#   helm repo add external-dns-charts https://kubernetes-sigs.github.io/external-dns/
+#   helm repo update
+#   helm install external-dns-controller external-dns-charts/external-dns \
+#     -n external-dns -f external-dns-values.yaml
+#
+# The chart creates the ServiceAccount, RBAC and Deployment for you — these
+# values are the same flags you'd otherwise hand-write as container args.
+
+# Chart >= 1.14 takes provider as an object. For older charts use:
+#   provider: cloudflare
+provider:
+  name: cloudflare
+
+sources:
+  - ingress
+
+domainFilters:
+  - devopsdetours-lab.com
+
+# sync = create, update AND delete (removing an Ingress removes the record).
+# Use upsert-only in production if you never want automatic deletes.
+policy: sync
+
+registry: txt
+txtOwnerId: devopsdetours
+# TXT prefix avoids a name collision with the CNAME it manages.
+txtPrefix: extdns-
+
+logLevel: info
+
+# Cloudflare API token, read from a Secret you create out-of-band (see README:
+# `kubectl create secret ... cloudflare-token`). The token never lives in a file.
+env:
+  - name: CF_API_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: cloudflare-token
+        key: cloudflare_api_token
+
+# Reconcile interval — 10s keeps the demo snappy (chart default is 1m).
+# Use the chart's native `interval` value, NOT extraArgs: the chart already
+# renders `--interval` from this value, so also putting it under extraArgs passes
+# `--interval` twice and ExternalDNS exits with
+# "flag 'interval' cannot be repeated".
+interval: 10s

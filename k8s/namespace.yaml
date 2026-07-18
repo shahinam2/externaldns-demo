@@ -1,0 +1,6 @@
+# Namespace for the demo app. Online Boutique (microservices-demo) is deployed
+# into this namespace from the upstream manifest — see README, Step 2.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: shop

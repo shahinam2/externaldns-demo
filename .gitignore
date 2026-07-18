@@ -1,0 +1,52 @@
+# Terraform state & cache
+.terraform/
+.terraform.tfstate.lock.info
+terraform.tfstate.d/
+*.tfstate
+*.tfstate.backup
+*.tfstate.*.backup
+crash.log
+crash.*.log
+
+# Sensitive variable files
+*.tfvars
+*.tfvars.json
+!example.tfvars
+
+# Override files
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Generated plan files
+*.tfplan
+tfplan
+
+# Local Terraform CLI config
+.terraformrc
+terraform.rc
+
+# Node / Vite apps
+node_modules/
+dist/
+build/
+.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local app environment
+.env
+.env.*
+!.env.example
+
+# SSH keys & secrets
+*.pem
+*.key
+*.p12
+
+# OS noise
+.DS_Store
+Thumbs.db

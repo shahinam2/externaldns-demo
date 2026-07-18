@@ -1,0 +1,38 @@
+# Traefik Ingress — the single source of truth ExternalDNS reads.
+#
+# ExternalDNS (source=ingress) takes:
+#   • the hostname  from  spec.rules[].host
+#   • the target    from  the Ingress's loadBalancer status, which Traefik
+#     publishes (the AWS ELB hostname). Make sure Traefik is installed with
+#     providers.kubernetesIngress.publishedService.enabled=true — see README.
+#
+# backend → service "frontend" port 80 is exactly what Online Boutique's
+# frontend Service exposes (ClusterIP 80 → targetPort 8080), so this matches
+# the upstream manifest unchanged.
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: frontend
+  namespace: shop
+  annotations:
+    # DNS-only (grey cloud): record resolves straight to the ELB, so dig/curl
+    # hit it directly while testing. Flip to "true" to put Cloudflare's proxy
+    # in front. TLS comes later, in the cert-manager video.
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+spec:
+  # Must match the IngressClass the Traefik chart creates, which is named after
+  # the Helm release (`traefik-ingress`). A wrong/absent class means Traefik
+  # ignores this Ingress — it won't route it or publish its ELB address.
+  ingressClassName: traefik-ingress
+  rules:
+    - host: shop.devopsdetours-lab.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: frontend
+                port:
+                  number: 80
