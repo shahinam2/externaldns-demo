@@ -104,11 +104,12 @@ kubectl apply -f k8s/namespace.yaml
 kubectl apply -n shop \
   -f https://raw.githubusercontent.com/GoogleCloudPlatform/microservices-demo/main/release/kubernetes-manifests.yaml
 
+kubectl get pods -n shop -w     # wait until all pods are Running
+
 # the app ships its own public LoadBalancer — we don't want that; we expose it via
 # Traefik instead, so remove it:
 kubectl delete svc frontend-external -n shop --ignore-not-found
 
-kubectl get pods -n shop -w     # wait until all pods are Running
 ```
 
 ✅ Every pod `Running`; `kubectl get svc -n shop frontend` shows a ClusterIP on port 80.
@@ -176,7 +177,7 @@ Also check your Cloudflare dashboard — no `shop` record.
 ```bash
 kubectl apply -f k8s/ingress.yaml
 kubectl get ingress -n shop                  # ADDRESS column is EMPTY
-kubectl logs -n external-dns deploy/external-dns-controller
+kubectl logs -n external-dns deploy/external-dns-controller -f
 # → still "All records are already up to date": the Ingress has no address to read
 dig +short shop.devopsdetours-lab.com        # → still (nothing)
 ```
